@@ -1,11 +1,12 @@
 /*
- * Copyright 2023 Ververica Inc.
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,9 +64,11 @@ import static io.debezium.connector.oracle.logminer.LogMinerHelper.logError;
 import static io.debezium.connector.oracle.logminer.LogMinerHelper.setLogFilesForMining;
 
 /**
- * Copied from Debezium 1.9.7. Diff: added afterHandleScn() method. A {@link
- * StreamingChangeEventSource} based on Oracle's LogMiner utility. The event handler loop is
- * executed in a separate executor.
+ * Copied from Debezium 1.9.8.Final. A {@link StreamingChangeEventSource} based on Oracle's LogMiner
+ * utility. The event handler loop is executed in a separate executor.
+ *
+ * <p>Diff: Make createProcessor method as protected to produce a LogMinerEventProcessor with
+ * enhanced processRow method to distinguish whether is bounded.
  */
 public class LogMinerStreamingChangeEventSource
         implements StreamingChangeEventSource<OraclePartition, OracleOffsetContext> {
@@ -251,8 +254,6 @@ public class LogMinerStreamingChangeEventSource
                             }
                             pauseBetweenMiningSessions();
                         }
-
-                        afterHandleScn(partition, offsetContext);
                     }
                 }
             }
@@ -265,8 +266,6 @@ public class LogMinerStreamingChangeEventSource
             LOGGER.info("Offsets: {}", offsetContext);
         }
     }
-
-    protected void afterHandleScn(OraclePartition partition, OracleOffsetContext offsetContext) {}
 
     /**
      * Computes the start SCN for the first mining session.
@@ -361,7 +360,7 @@ public class LogMinerStreamingChangeEventSource
                 format.format(sessionProcessGlobalAreaMaxMemory / 1024.f / 1024.f));
     }
 
-    private LogMinerEventProcessor createProcessor(
+    protected LogMinerEventProcessor createProcessor(
             ChangeEventSourceContext context,
             OraclePartition partition,
             OracleOffsetContext offsetContext) {

@@ -84,7 +84,7 @@ import java.util.function.Predicate;
 import static io.debezium.util.Strings.isNullOrEmpty;
 
 /**
- * Copied from Debezium project to fix
+ * Copied from Debezium project(1.9.8.Final) to fix
  * https://github.com/ververica/flink-cdc-connectors/issues/1944.
  *
  * <p>Line 1427-1433 : Adjust GTID merging logic to support recovering from job which previously
@@ -268,7 +268,8 @@ public class MySqlStreamingChangeEventSource
 
                             // DBZ-5126 Clean cache on rotate event to prevent it from growing
                             // indefinitely.
-                            if (event.getHeader().getEventType() == EventType.ROTATE) {
+                            if (event.getHeader().getEventType() == EventType.ROTATE
+                                    && event.getHeader().getTimestamp() != 0) {
                                 tableMapEventByTableId.clear();
                             }
                             return event;

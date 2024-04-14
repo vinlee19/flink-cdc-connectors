@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright 2023 Ververica Inc.
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-  http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing,
-software distributed under the License is distributed on an
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, either express or implied.  See the License for the
-specific language governing permissions and limitations
-under the License.
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>flink-cdc-e2e-tests</artifactId>
-        <groupId>com.ververica</groupId>
+        <groupId>org.apache.flink</groupId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -66,56 +68,56 @@ under the License.
 
         <!-- CDC connectors test utils -->
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-mysql-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-mongodb-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-oracle-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-sqlserver-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-tidb-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-db2-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-vitess-cdc</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.ververica</groupId>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-test-util</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -278,7 +280,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-mysql-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>mysql-cdc-connector.jar</destFileName>
@@ -288,7 +290,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-postgres-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>postgres-cdc-connector.jar</destFileName>
@@ -298,7 +300,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-mongodb-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>mongodb-cdc-connector.jar</destFileName>
@@ -308,7 +310,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-oracle-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>oracle-cdc-connector.jar</destFileName>
@@ -318,7 +320,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-sqlserver-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>sqlserver-cdc-connector.jar</destFileName>
@@ -328,7 +330,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-tidb-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>tidb-cdc-connector.jar</destFileName>
@@ -338,7 +340,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-db2-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>db2-cdc-connector.jar</destFileName>
@@ -348,7 +350,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-vitess-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>vitess-cdc-connector.jar</destFileName>
@@ -358,7 +360,7 @@ under the License.
                         </artifactItem>
 
                         <artifactItem>
-                            <groupId>com.ververica</groupId>
+                            <groupId>org.apache.flink</groupId>
                             <artifactId>flink-sql-connector-oceanbase-cdc</artifactId>
                             <version>${project.version}</version>
                             <destFileName>oceanbase-cdc-connector.jar</destFileName>
