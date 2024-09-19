@@ -63,13 +63,11 @@ import static io.debezium.connector.postgresql.Utils.currentOffset;
 /** The dialect for Postgres. */
 public class PostgresDialect implements JdbcDataSourceDialect {
     private static final long serialVersionUID = 1L;
-
     private static final String CONNECTION_NAME = "postgres-cdc-connector";
+
     private final PostgresSourceConfig sourceConfig;
     private transient Tables.TableFilter filters;
-
     private transient CustomPostgresSchema schema;
-
     @Nullable private PostgresStreamFetchTask streamFetchTask;
 
     public PostgresDialect(PostgresSourceConfig sourceConfig) {
@@ -161,9 +159,7 @@ public class PostgresDialect implements JdbcDataSourceDialect {
         try (JdbcConnection jdbc = openJdbcConnection(sourceConfig)) {
             return TableDiscoveryUtils.listTables(
                     // there is always a single database provided
-                    sourceConfig.getDatabaseList().get(0),
-                    jdbc,
-                    ((PostgresSourceConfig) sourceConfig).getTableFilters());
+                    sourceConfig.getDatabaseList().get(0), jdbc, sourceConfig.getTableFilters());
         } catch (SQLException e) {
             throw new FlinkRuntimeException("Error to discover tables: " + e.getMessage(), e);
         }

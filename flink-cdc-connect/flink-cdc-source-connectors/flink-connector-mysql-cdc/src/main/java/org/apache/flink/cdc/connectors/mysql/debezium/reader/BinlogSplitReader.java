@@ -21,13 +21,14 @@ import org.apache.flink.cdc.common.annotation.VisibleForTesting;
 import org.apache.flink.cdc.connectors.mysql.debezium.task.MySqlBinlogSplitReadTask;
 import org.apache.flink.cdc.connectors.mysql.debezium.task.context.StatefulTaskContext;
 import org.apache.flink.cdc.connectors.mysql.source.offset.BinlogOffset;
-import org.apache.flink.cdc.connectors.mysql.source.offset.BinlogOffsetKind;
 import org.apache.flink.cdc.connectors.mysql.source.split.FinishedSnapshotSplitInfo;
 import org.apache.flink.cdc.connectors.mysql.source.split.MySqlBinlogSplit;
 import org.apache.flink.cdc.connectors.mysql.source.split.MySqlSplit;
 import org.apache.flink.cdc.connectors.mysql.source.split.SourceRecords;
 import org.apache.flink.cdc.connectors.mysql.source.utils.ChunkUtils;
 import org.apache.flink.cdc.connectors.mysql.source.utils.RecordUtils;
+import org.apache.flink.cdc.connectors.mysql.table.StartupMode;
+import org.apache.flink.cdc.connectors.mysql.table.StartupOptions;
 import org.apache.flink.table.types.logical.RowType;
 import org.apache.flink.util.FlinkRuntimeException;
 
@@ -39,7 +40,6 @@ import io.debezium.connector.base.ChangeEventQueue;
 import io.debezium.connector.mysql.MySqlStreamingChangeEventSourceMetrics;
 import io.debezium.pipeline.DataChangeEvent;
 import io.debezium.relational.TableId;
-import io.debezium.relational.Tables;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.slf4j.Logger;
@@ -80,7 +80,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
     // tableId -> the max splitHighWatermark
     private Map<TableId, BinlogOffset> maxSplitHighWatermarkMap;
     private final Set<TableId> pureBinlogPhaseTables;
-    private Tables.TableFilter capturedTableFilter;
+    private Predicate capturedTableFilter;
     private final StoppableChangeEventSourceContext changeEventSourceContext =
             new StoppableChangeEventSourceContext();
 
@@ -99,8 +99,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
         this.currentBinlogSplit = mySqlSplit.asBinlogSplit();
         configureFilter();
         statefulTaskContext.configure(currentBinlogSplit);
-        this.capturedTableFilter =
-                statefulTaskContext.getConnectorConfig().getTableFilters().dataCollectionFilter();
+        this.capturedTableFilter = statefulTaskContext.getSourceConfig().getTableFilter();
         this.queue = statefulTaskContext.getQueue();
         this.binlogSplitReadTask =
                 new MySqlBinlogSplitReadTask(
@@ -114,7 +113,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
                         (MySqlStreamingChangeEventSourceMetrics)
                                 statefulTaskContext.getStreamingChangeEventSourceMetrics(),
                         currentBinlogSplit,
-                        createEventFilter(currentBinlogSplit.getStartingOffset()));
+                        createEventFilter());
 
         executorService.submit(
                 () -> {
@@ -214,6 +213,9 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
     private boolean shouldEmit(SourceRecord sourceRecord) {
         if (RecordUtils.isDataChangeRecord(sourceRecord)) {
             TableId tableId = RecordUtils.getTableId(sourceRecord);
+            if (pureBinlogPhaseTables.contains(tableId)) {
+                return true;
+            }
             BinlogOffset position = RecordUtils.getBinlogPosition(sourceRecord);
             if (hasEnterPureBinlogPhase(tableId, position)) {
                 return true;
@@ -243,7 +245,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
         } else if (RecordUtils.isSchemaChangeEvent(sourceRecord)) {
             if (RecordUtils.isTableChangeRecord(sourceRecord)) {
                 TableId tableId = RecordUtils.getTableId(sourceRecord);
-                return capturedTableFilter.isIncluded(tableId);
+                return capturedTableFilter.test(tableId);
             } else {
                 // Not related to changes in table structure, like `CREATE/DROP DATABASE`, skip it
                 return false;
@@ -253,9 +255,6 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
     }
 
     private boolean hasEnterPureBinlogPhase(TableId tableId, BinlogOffset position) {
-        if (pureBinlogPhaseTables.contains(tableId)) {
-            return true;
-        }
         // the existed tables those have finished snapshot reading
         if (maxSplitHighWatermarkMap.containsKey(tableId)
                 && position.isAtOrAfter(maxSplitHighWatermarkMap.get(tableId))) {
@@ -269,7 +268,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
         if (!statefulTaskContext.getSourceConfig().isScanNewlyAddedTableEnabled()) {
             // the new added sharding table without history records
             return !maxSplitHighWatermarkMap.containsKey(tableId)
-                    && capturedTableFilter.isIncluded(tableId);
+                    && capturedTableFilter.test(tableId);
         }
         return false;
     }
@@ -279,7 +278,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
                 currentBinlogSplit.getFinishedSnapshotSplitInfos();
         Map<TableId, List<FinishedSnapshotSplitInfo>> splitsInfoMap = new HashMap<>();
         Map<TableId, BinlogOffset> tableIdBinlogPositionMap = new HashMap<>();
-        // specific offset mode
+        // startup mode which is stream only
         if (finishedSplitInfos.isEmpty()) {
             for (TableId tableId : currentBinlogSplit.getTableSchemas().keySet()) {
                 tableIdBinlogPositionMap.put(tableId, currentBinlogSplit.getStartingOffset());
@@ -306,17 +305,35 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
         this.pureBinlogPhaseTables.clear();
     }
 
-    private Predicate<Event> createEventFilter(BinlogOffset startingOffset) {
+    private Predicate<Event> createEventFilter() {
         // If the startup mode is set as TIMESTAMP, we need to apply a filter on event to drop
         // events earlier than the specified timestamp.
-        if (BinlogOffsetKind.TIMESTAMP.equals(startingOffset.getOffsetKind())) {
-            long startTimestampSec = startingOffset.getTimestampSec();
-            // Notes:
-            // 1. Heartbeat event doesn't contain timestamp, so we just keep it
-            // 2. Timestamp of event is in epoch millisecond
-            return event ->
-                    EventType.HEARTBEAT.equals(event.getHeader().getEventType())
-                            || event.getHeader().getTimestamp() >= startTimestampSec * 1000;
+
+        // NOTE: Here we take user's configuration (statefulTaskContext.getSourceConfig())
+        // as the ground truth. This might be fragile if user changes the config and recover
+        // the job from savepoint / checkpoint, as there might be conflict between user's config
+        // and the state in savepoint / checkpoint. But as we don't promise compatibility of
+        // checkpoint after changing the config, this is acceptable for now.
+        StartupOptions startupOptions = statefulTaskContext.getSourceConfig().getStartupOptions();
+        if (startupOptions.startupMode.equals(StartupMode.TIMESTAMP)) {
+            if (startupOptions.binlogOffset == null) {
+                throw new NullPointerException(
+                        "The startup option was set to TIMESTAMP "
+                                + "but unable to find starting binlog offset. Please check if the timestamp is specified in "
+                                + "configuration. ");
+            }
+            long startTimestampSec = startupOptions.binlogOffset.getTimestampSec();
+            // We only skip data change event, as other kinds of events are necessary for updating
+            // some internal state inside MySqlStreamingChangeEventSource
+            LOG.info(
+                    "Creating event filter that dropping row mutation events before timestamp in second {}",
+                    startTimestampSec);
+            return event -> {
+                if (!EventType.isRowMutation(getEventType(event))) {
+                    return true;
+                }
+                return event.getHeader().getTimestamp() >= startTimestampSec * 1000;
+            };
         }
         return event -> true;
     }
@@ -327,8 +344,17 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
         changeEventSourceContext.stopChangeEventSource();
     }
 
+    private EventType getEventType(Event event) {
+        return event.getHeader().getEventType();
+    }
+
     @VisibleForTesting
     public ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    @VisibleForTesting
+    MySqlBinlogSplitReadTask getBinlogSplitReadTask() {
+        return binlogSplitReadTask;
     }
 }
