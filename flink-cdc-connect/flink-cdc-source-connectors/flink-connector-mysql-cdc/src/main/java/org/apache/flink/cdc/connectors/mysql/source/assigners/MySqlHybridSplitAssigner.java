@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based on primary key
  * range and chunk size and also continue with a binlog split.
  */
-public class MySqlHybridSplitAssigner implements MySqlSplitAssigner {
+public class  MySqlHybridSplitAssigner implements MySqlSplitAssigner {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlHybridSplitAssigner.class);
     private static final String BINLOG_SPLIT_ID = "binlog-split";
@@ -196,6 +196,9 @@ public class MySqlHybridSplitAssigner implements MySqlSplitAssigner {
 
     // --------------------------------------------------------------------------------------------
 
+    /**
+     * create binlog split from snapshot split assigner
+     */
     private MySqlBinlogSplit createBinlogSplit() {
         final List<MySqlSchemalessSnapshotSplit> assignedSnapshotSplit =
                 snapshotSplitAssigner.getAssignedSplits().values().stream()

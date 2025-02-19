@@ -53,6 +53,7 @@ import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEv
 import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_POSITION_OFFSET_KEY;
 
 /**
+ * 实现事件分发器，处理 Debezium 捕获的变更事件。
  * A subclass implementation of {@link EventDispatcher}.
  *
  * <pre>

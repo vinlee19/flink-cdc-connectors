@@ -31,6 +31,7 @@ import org.apache.kafka.connect.source.SourceRecord;
 import java.util.Map;
 
 /**
+ * 水位线信号分发器
  * A dispatcher to dispatch watermark signal events.
  *
  * <p>The watermark signal event is used to describe the start point and end point of a split scan.

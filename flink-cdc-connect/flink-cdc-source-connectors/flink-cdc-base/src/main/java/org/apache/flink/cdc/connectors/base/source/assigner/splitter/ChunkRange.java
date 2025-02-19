@@ -32,6 +32,7 @@ public class ChunkRange {
     private final @Nullable Object chunkEnd;
 
     /**
+     * internal structure.
      * Returns a {@link ChunkRange} which represents a full table scan with unbounded chunk start
      * and chunk end.
      */

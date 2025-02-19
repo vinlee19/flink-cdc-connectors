@@ -56,7 +56,9 @@ import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.function.Predicate;
 
-/** Utilities related to Debezium. */
+/** Utilities related to Debezium.
+ * 工具类.
+ * */
 public class DebeziumUtils {
     private static final String QUOTED_CHARACTER = "`";
 

@@ -61,6 +61,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
 /**
+ * Mysql split logic for MySQL snapshot split assigner.
  * A {@link MySqlSplitAssigner} that splits tables into small chunk splits based on primary key
  * range and chunk size.
  *
@@ -333,6 +334,9 @@ public class MySqlSnapshotSplitAssigner implements MySqlSplitAssigner {
                 end - start);
     }
 
+    /**
+     * chunk splitter will split the table into chunks, and each chunk will be a snapshot split
+     */
     @Override
     public Optional<MySqlSplit> getNext() {
         waitTableDiscoveryReady();

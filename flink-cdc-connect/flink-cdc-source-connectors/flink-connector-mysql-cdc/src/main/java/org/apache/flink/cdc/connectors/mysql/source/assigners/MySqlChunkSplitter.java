@@ -55,7 +55,9 @@ import java.util.Optional;
 
 import static java.math.BigDecimal.ROUND_CEILING;
 
-/** The {@link ChunkSplitter} implementation for MySQL. */
+/** The {@link ChunkSplitter} implementation for MySQL.
+ * core chunk splitter for MySQL.
+ * */
 public class MySqlChunkSplitter implements ChunkSplitter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlChunkSplitter.class);
@@ -145,12 +147,15 @@ public class MySqlChunkSplitter implements ChunkSplitter {
         try {
             currentSplittingTable =
                     mySqlSchema.getTableSchema(partition, jdbcConnection, tableId).getTable();
+            // split column
             splitColumn =
                     ChunkUtils.getChunkKeyColumn(
                             currentSplittingTable, sourceConfig.getChunkKeyColumns());
+            // get split logic data type
             splitType = ChunkUtils.getChunkKeyColumnType(splitColumn);
             minMaxOfSplitColumn =
                     StatementUtils.queryMinMax(jdbcConnection, tableId, splitColumn.name());
+            // get approximate row count
             approximateRowCnt = StatementUtils.queryApproximateRowCnt(jdbcConnection, tableId);
         } catch (Exception e) {
             throw new RuntimeException("Fail to analyze table in chunk splitter.", e);
@@ -279,6 +284,7 @@ public class MySqlChunkSplitter implements ChunkSplitter {
     }
 
     /**
+     * Mysql chunk split logic.
      * Split table into evenly sized chunks based on the numeric min and max value of split column,
      * and tumble chunks in step size.
      */

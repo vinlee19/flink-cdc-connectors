@@ -359,6 +359,9 @@ public class MySqlSourceReader<T>
         }
     }
 
+    /**
+     * Report finished snapshot splits to coordinator.
+     */
     private void reportFinishedSnapshotSplitsIfNeed() {
         if (!finishedUnackedSplits.isEmpty()) {
             final Map<String, BinlogOffset> finishedOffsets = new HashMap<>();

@@ -25,7 +25,9 @@ import io.debezium.relational.history.TableChanges;
 import java.util.Map;
 import java.util.Objects;
 
-/** The split of table comes from a Table that splits by primary key. */
+/** The split of table comes from a Table that splits by primary key.
+ * FLIP-21 interface
+ * */
 public abstract class MySqlSplit implements SourceSplit {
 
     protected final String splitId;

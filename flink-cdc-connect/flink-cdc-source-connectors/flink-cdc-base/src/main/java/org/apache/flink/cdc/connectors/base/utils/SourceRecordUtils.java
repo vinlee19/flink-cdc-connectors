@@ -40,7 +40,9 @@ import static io.debezium.connector.AbstractSourceInfo.SCHEMA_NAME_KEY;
 import static io.debezium.connector.AbstractSourceInfo.TABLE_NAME_KEY;
 import static org.apache.flink.cdc.connectors.base.relational.JdbcSourceEventDispatcher.HISTORY_RECORD_FIELD;
 
-/** Utility class to deal record. */
+/** Utility class to deal record.
+ * 工具类
+ * */
 public class SourceRecordUtils {
 
     private SourceRecordUtils() {}
@@ -95,6 +97,9 @@ public class SourceRecordUtils {
         return value.getInt64(Envelope.FieldName.TIMESTAMP);
     }
 
+    /**
+     * Whether the record is a schema change event.
+     */
     public static boolean isSchemaChangeEvent(SourceRecord sourceRecord) {
         Schema keySchema = sourceRecord.keySchema();
         return keySchema != null && (keySchema.name().matches(SCHEMA_CHANGE_EVENT_KEY_NAME));

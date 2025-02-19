@@ -311,9 +311,7 @@ public class StatementUtils {
         sql.append(projection);
         sql.append(" FROM ");
         sql.append(quotedTableIdString(tableId));
-        if (condition.isPresent()) {
-            sql.append(" WHERE ").append(condition.get());
-        }
+        condition.ifPresent(s -> sql.append(" WHERE ").append(s));
         sql.append(" ORDER BY ").append(orderBy).append(" LIMIT ").append(limit);
         sql.append(") T");
         return sql.toString();

@@ -64,6 +64,9 @@ public class MySqlChunkSplitter implements JdbcSourceChunkSplitter {
         this.dialect = dialect;
     }
 
+    /**
+     * chunk的划分算法非常重要
+     */
     @Override
     public Collection<SnapshotSplit> generateSplits(TableId tableId) {
         try (JdbcConnection jdbc = dialect.openJdbcConnection(sourceConfig)) {
@@ -97,6 +100,7 @@ public class MySqlChunkSplitter implements JdbcSourceChunkSplitter {
             }
 
             long end = System.currentTimeMillis();
+            // print chunk split info.
             LOG.info(
                     "Split table {} into {} chunks, time cost: {}ms.",
                     tableId,

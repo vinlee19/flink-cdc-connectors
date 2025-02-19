@@ -43,7 +43,7 @@ public interface JdbcSourceChunkSplitter extends ChunkSplitter {
 
     /**
      * Query the maximum and minimum value of the column in the table. e.g. query string <code>
-     * SELECT MIN(%s) FROM %s WHERE %s > ?</code>
+     * SELECT MIN(%s), MAX(%s) FROM %s WHERE %s > ?</code>
      *
      * @param jdbc JDBC connection.
      * @param tableId table identity.

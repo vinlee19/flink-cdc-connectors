@@ -168,6 +168,7 @@ public class MySqlSnapshotSplitReadTask
         }
 
         LOG.info("Snapshot step 2 - Snapshotting data");
+        //
         createDataEvents(ctx, snapshotSplit.getTableId());
 
         if (hooks.getPreHighWatermarkAction() != null) {
@@ -175,6 +176,7 @@ public class MySqlSnapshotSplitReadTask
         }
 
         BinlogOffset highWatermark;
+        // 是否跳过回填
         if (isBackfillSkipped) {
             // Directly set HW = LW if backfill is skipped. Binlog events created during snapshot
             // phase could be processed later in binlog reading phase.
@@ -241,7 +243,7 @@ public class MySqlSnapshotSplitReadTask
 
         long exportStart = clock.currentTimeInMillis();
         LOG.info("Exporting data from split '{}' of table {}", snapshotSplit.splitId(), table.id());
-
+        // in snapshot phase, use jdbc read data directly.
         final String selectSql =
                 StatementUtils.buildSplitScanQuery(
                         snapshotSplit.getTableId(),
@@ -272,6 +274,7 @@ public class MySqlSnapshotSplitReadTask
 
             while (rs.next()) {
                 rows++;
+                // 数组数组，用于存储结果集的每一行的数据
                 final Object[] row = new Object[columnArray.getGreatestColumnPosition()];
                 for (int i = 0; i < columnArray.getColumns().length; i++) {
                     Column actualColumn = table.columns().get(i);

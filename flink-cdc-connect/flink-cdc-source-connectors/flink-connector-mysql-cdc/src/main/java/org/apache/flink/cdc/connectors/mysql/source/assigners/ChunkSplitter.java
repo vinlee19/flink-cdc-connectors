@@ -27,6 +27,7 @@ import io.debezium.relational.TableId;
 import java.util.List;
 
 /**
+ * the interface of chunk splitter.
  * The {@code ChunkSplitter}'s task is to split table into a set of chunks or called splits (i.e.
  * {@link MySqlSnapshotSplit}).
  */

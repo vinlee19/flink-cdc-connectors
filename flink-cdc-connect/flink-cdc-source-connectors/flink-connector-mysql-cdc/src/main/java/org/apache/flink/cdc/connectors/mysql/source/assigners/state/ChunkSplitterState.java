@@ -25,7 +25,9 @@ import javax.annotation.Nullable;
 
 import java.util.Objects;
 
-/** The state of the {@link MySqlChunkSplitter}. */
+/** The state of the {@link MySqlChunkSplitter}.
+ * common state of chunk splitter.
+ * */
 public class ChunkSplitterState {
 
     public static final ChunkSplitterState NO_SPLITTING_TABLE_STATE =

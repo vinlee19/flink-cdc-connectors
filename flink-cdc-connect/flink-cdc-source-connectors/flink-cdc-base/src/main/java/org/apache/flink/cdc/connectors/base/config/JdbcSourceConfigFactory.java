@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-/** A {@link Factory} to provide {@link SourceConfig} of JDBC data source. */
+/** A {@link Factory} to provide {@link SourceConfig} of JDBC data source.
+ * 工厂模式和建造者模式
+ * */
 @Internal
 public abstract class JdbcSourceConfigFactory implements Factory<JdbcSourceConfig> {
 

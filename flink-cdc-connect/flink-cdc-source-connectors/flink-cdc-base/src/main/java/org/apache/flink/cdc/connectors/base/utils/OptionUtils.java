@@ -24,7 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-/** A utility class to print configuration of connectors. */
+/** A utility class to print configuration of connectors. 
+ * flink-connector-doris 可以借鉴一下这个方法
+ * */
 public class OptionUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(OptionUtils.class);

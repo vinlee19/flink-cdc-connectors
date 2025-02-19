@@ -22,7 +22,9 @@ import java.util.Objects;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
 
-/** Flink CDC Connector startup options. */
+/** Flink CDC Connector startup options.
+ * 工厂方法模式.
+ * */
 public final class StartupOptions implements Serializable {
     private static final long serialVersionUID = 1L;
 

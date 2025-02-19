@@ -24,7 +24,9 @@ import io.debezium.relational.TableId;
 
 import java.util.Collection;
 
-/** The splitter used to split collection into a set of chunks. */
+/** The splitter used to split collection into a set of chunks.
+ * chunk的划分方法
+ * */
 @Experimental
 public interface ChunkSplitter {
 

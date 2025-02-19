@@ -85,6 +85,9 @@ public class MySqlDialect implements JdbcDataSourceDialect {
         return jdbc;
     }
 
+    /**
+     * obtain the current binlog offset.
+     */
     @Override
     public Offset displayCurrentOffset(JdbcSourceConfig sourceConfig) {
         try (JdbcConnection jdbcConnection = openJdbcConnection(sourceConfig)) {

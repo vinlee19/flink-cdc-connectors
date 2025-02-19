@@ -56,7 +56,7 @@ import static org.apache.flink.cdc.connectors.base.source.assigner.AssignerStatu
 import static org.apache.flink.cdc.connectors.base.source.assigner.AssignerStatus.isNewlyAddedAssigningSnapshotFinished;
 import static org.apache.flink.cdc.connectors.base.source.assigner.AssignerStatus.isSnapshotAssigningFinished;
 
-/** Assigner for snapshot split. */
+/** Assigner for snapshot split. 重点是这一块，split 的划分思想非常值得学习*/
 public class SnapshotSplitAssigner<C extends SourceConfig> implements SplitAssigner {
     private static final Logger LOG = LoggerFactory.getLogger(SnapshotSplitAssigner.class);
 
@@ -279,6 +279,7 @@ public class SnapshotSplitAssigner<C extends SourceConfig> implements SplitAssig
         } else {
             // it's turn for new table
             TableId nextTable = remainingTables.pollFirst();
+            // Firstly, try to split the table into chunks (snapshot splits)
             if (nextTable != null) {
                 // split the given table into chunks (snapshot splits)
                 Collection<SnapshotSplit> splits = chunkSplitter.generateSplits(nextTable);

@@ -59,7 +59,9 @@ import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEv
 import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEventDispatcher.SPLIT_ID_KEY;
 import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
 
-/** Utility class to deal record. */
+/** Utility class to deal record.
+ * 处理record
+ * */
 public class RecordUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecordUtils.class);
@@ -98,7 +100,9 @@ public class RecordUtils {
         }
     }
 
-    /** upsert binlog events to snapshot events collection. */
+    /** upsert binlog events to snapshot events collection.
+     * 重要的类.
+     * */
     public static void upsertBinlog(
             Map<Struct, List<SourceRecord>> snapshotRecords,
             SourceRecord binlogRecord,
@@ -243,17 +247,15 @@ public class RecordUtils {
                             Instant fetchTs =
                                     Instant.ofEpochMilli(
                                             value.getInt64(Envelope.FieldName.TIMESTAMP));
-                            SourceRecord sourceRecord =
-                                    new SourceRecord(
-                                            record.sourcePartition(),
-                                            record.sourceOffset(),
-                                            record.topic(),
-                                            record.kafkaPartition(),
-                                            record.keySchema(),
-                                            record.key(),
-                                            record.valueSchema(),
-                                            envelope.read(updateAfter, source, fetchTs));
-                            return sourceRecord;
+                            return new SourceRecord(
+                                    record.sourcePartition(),
+                                    record.sourceOffset(),
+                                    record.topic(),
+                                    record.kafkaPartition(),
+                                    record.keySchema(),
+                                    record.key(),
+                                    record.valueSchema(),
+                                    envelope.read(updateAfter, source, fetchTs));
                         })
                 .collect(Collectors.toList());
     }
