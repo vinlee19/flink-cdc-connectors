@@ -168,7 +168,7 @@ public class MySqlSnapshotSplitReadTask
         }
 
         LOG.info("Snapshot step 2 - Snapshotting data");
-        //
+        //create data event for snapshot split
         createDataEvents(ctx, snapshotSplit.getTableId());
 
         if (hooks.getPreHighWatermarkAction() != null) {
@@ -234,7 +234,9 @@ public class MySqlSnapshotSplitReadTask
         snapshotReceiver.completeSnapshot();
     }
 
-    /** Dispatches the data change events for the records of a single table. */
+    /** Dispatches the data change events for the records of a single table.
+     * the detail of the method is in the source code of the debezium
+     * */
     private void createDataEventsForTable(
             MySqlSnapshotContext snapshotContext,
             EventDispatcher.SnapshotReceiver<MySqlPartition> snapshotReceiver,

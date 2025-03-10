@@ -160,6 +160,22 @@ limitations under the License.
 
         <dependency>
             <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka</artifactId>
+            <version>3.2.0-1.18</version>
+            <scope>test</scope>
+        </dependency>
+
+<!--        &lt;!&ndash; Kafka Client &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.kafka</groupId>-->
+<!--            <artifactId>kafka-clients</artifactId>-->
+<!--            <version>3.7.2</version>-->
+<!--            <scope>test</scope>-->
+
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
             <artifactId>flink-tests</artifactId>
             <version>${flink.version}</version>
             <type>test-jar</type>

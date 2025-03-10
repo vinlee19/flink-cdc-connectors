@@ -53,6 +53,7 @@ import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEv
 import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEventDispatcher.BINLOG_POSITION_OFFSET_KEY;
 
 /**
+ * 2月19日
  * 实现事件分发器，处理 Debezium 捕获的变更事件。
  * A subclass implementation of {@link EventDispatcher}.
  *
@@ -131,6 +132,9 @@ public class EventDispatcherImpl<T extends DataCollectionId>
         return queue;
     }
 
+    /**
+     * Dispatch schema change event. This method is used for dispatching {@link HistoryRecord}
+     */
     @Override
     public void dispatchSchemaChangeEvent(
             MySqlPartition partition,
@@ -212,6 +216,7 @@ public class EventDispatcherImpl<T extends DataCollectionId>
             return value;
         }
 
+        // Maybe,we can debug this method to know how handle schema change event.
         @Override
         public void schemaChangeEvent(SchemaChangeEvent event) throws InterruptedException {
             historizedSchema.applySchemaChange(event);

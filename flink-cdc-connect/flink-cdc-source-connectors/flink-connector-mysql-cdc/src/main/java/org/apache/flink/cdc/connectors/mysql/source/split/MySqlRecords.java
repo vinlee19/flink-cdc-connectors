@@ -27,6 +27,7 @@ import java.util.Set;
 
 /**
  * An implementation of {@link RecordsWithSplitIds} which contains the records of one table split.
+ * MySqlRecords 主要实现了 RecordsWithSplitIds 接口,用于处理split和记录的关系
  */
 public final class MySqlRecords implements RecordsWithSplitIds<SourceRecords> {
 
@@ -71,6 +72,7 @@ public final class MySqlRecords implements RecordsWithSplitIds<SourceRecords> {
         }
     }
 
+    //静态工厂方法
     @Override
     public Set<String> finishedSplits() {
         return finishedSnapshotSplits;

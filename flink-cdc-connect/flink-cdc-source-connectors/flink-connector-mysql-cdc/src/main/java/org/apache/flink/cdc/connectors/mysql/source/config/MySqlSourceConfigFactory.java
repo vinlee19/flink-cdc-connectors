@@ -68,6 +68,7 @@ public class MySqlSourceConfigFactory implements Serializable {
     private Duration heartbeatInterval = MySqlSourceOptions.HEARTBEAT_INTERVAL.defaultValue();
     private Properties dbzProperties;
     private Map<ObjectPath, String> chunkKeyColumns = new HashMap<>();
+    // Whether to skip snapshot backfill,default set to false
     private boolean skipSnapshotBackfill = false;
 
     public MySqlSourceConfigFactory hostname(String hostname) {

@@ -60,7 +60,7 @@ import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEv
 import static org.apache.flink.cdc.connectors.mysql.debezium.dispatcher.SignalEventDispatcher.WATERMARK_KIND;
 
 /** Utility class to deal record.
- * 处理record
+ * 处理record 非常重要的工具类
  * */
 public class RecordUtils {
 

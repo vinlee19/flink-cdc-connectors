@@ -197,18 +197,20 @@ public class  MySqlHybridSplitAssigner implements MySqlSplitAssigner {
     // --------------------------------------------------------------------------------------------
 
     /**
+     * 计算binlog点
      * create binlog split from snapshot split assigner
      */
     private MySqlBinlogSplit createBinlogSplit() {
+        //
         final List<MySqlSchemalessSnapshotSplit> assignedSnapshotSplit =
                 snapshotSplitAssigner.getAssignedSplits().values().stream()
                         .sorted(Comparator.comparing(MySqlSplit::splitId))
                         .collect(Collectors.toList());
-
+        //offset of binlog split
         Map<String, BinlogOffset> splitFinishedOffsets =
                 snapshotSplitAssigner.getSplitFinishedOffsets();
         final List<FinishedSnapshotSplitInfo> finishedSnapshotSplitInfos = new ArrayList<>();
-
+        //所有的binlog offset
         BinlogOffset minBinlogOffset = null;
         BinlogOffset maxBinlogOffset = null;
         for (MySqlSchemalessSnapshotSplit split : assignedSnapshotSplit) {

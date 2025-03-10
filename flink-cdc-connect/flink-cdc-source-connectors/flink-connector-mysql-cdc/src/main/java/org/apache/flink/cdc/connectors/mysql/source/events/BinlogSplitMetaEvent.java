@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
+ * MysqlSourceEnumerator --[BinlogSplitMeatEvent] pass binlog metadata-->  MysqlSourceReader
  * The {@link SourceEvent} that {@link MySqlSourceEnumerator} sends to {@link MySqlSourceReader} to
  * pass binlog metadata, i.e. {@link FinishedSnapshotSplitInfo}.
  */

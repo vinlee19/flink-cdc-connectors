@@ -27,6 +27,8 @@ import java.util.Objects;
 
 /** The split of table comes from a Table that splits by primary key.
  * FLIP-21 interface
+ * MysqlSplit --> MySqlSnapshotSplit, MySqlBinlogSplit
+ *
  * */
 public abstract class MySqlSplit implements SourceSplit {
 

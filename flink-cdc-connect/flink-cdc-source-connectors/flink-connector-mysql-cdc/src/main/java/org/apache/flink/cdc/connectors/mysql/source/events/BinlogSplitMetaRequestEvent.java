@@ -22,6 +22,7 @@ import org.apache.flink.cdc.connectors.mysql.source.enumerator.MySqlSourceEnumer
 import org.apache.flink.cdc.connectors.mysql.source.reader.MySqlSourceReader;
 
 /**
+ * MysqlSourceReader --[BinlogSplitMeatRequestEvent] pull binlog metadata-->  MySqlSourceEnumerator
  * The {@link SourceEvent} that {@link MySqlSourceReader} sends to {@link MySqlSourceEnumerator} to
  * pull binlog metadata, i.e. sending {@link BinlogSplitMetaEvent}.
  */

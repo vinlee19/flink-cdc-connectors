@@ -50,7 +50,11 @@ import java.util.Set;
 
 import static org.apache.flink.cdc.connectors.mysql.source.assigners.MySqlBinlogSplitAssigner.BINLOG_SPLIT_ID;
 
-/** The {@link SplitReader} implementation for the {@link MySqlSource}. */
+/** The {@link SplitReader} implementation for the {@link MySqlSource}.
+ * snapshot phase --> SnapshotSplitReader --> BinlogSplitReader
+ * snapshot splits --> SnapshotSplitReader
+ * binlog splits --> BinlogSplitReader
+ * */
 public class MySqlSplitReader implements SplitReader<SourceRecords, MySqlSplit> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MySqlSplitReader.class);

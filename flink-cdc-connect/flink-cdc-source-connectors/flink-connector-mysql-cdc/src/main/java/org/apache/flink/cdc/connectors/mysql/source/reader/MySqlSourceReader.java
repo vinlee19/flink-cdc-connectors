@@ -71,7 +71,9 @@ import java.util.stream.Collectors;
 
 import static org.apache.flink.cdc.connectors.mysql.source.assigners.MySqlBinlogSplitAssigner.BINLOG_SPLIT_ID;
 
-/** The source reader for MySQL source splits. */
+/** The source reader for MySQL source splits.
+ * 核心控制类
+ * */
 public class MySqlSourceReader<T>
         extends SingleThreadMultiplexSourceReaderBase<
                 SourceRecords, T, MySqlSplit, MySqlSplitState> {
@@ -83,6 +85,7 @@ public class MySqlSourceReader<T>
     private final int subtaskId;
     private final MySqlSourceReaderContext mySqlSourceReaderContext;
     private final MySqlPartition partition;
+    //暂停的binlog split
     private volatile MySqlBinlogSplit suspendedBinlogSplit;
 
     public MySqlSourceReader(
@@ -115,6 +118,7 @@ public class MySqlSourceReader<T>
         }
     }
 
+    // 初始化状态
     @Override
     protected MySqlSplitState initializedState(MySqlSplit split) {
         if (split.isSnapshotSplit()) {
@@ -124,6 +128,7 @@ public class MySqlSourceReader<T>
         }
     }
 
+    // checkpoint State checkpoint logic
     @Override
     public List<MySqlSplit> snapshotState(long checkpointId) {
         List<MySqlSplit> stateSplits = super.snapshotState(checkpointId);
@@ -153,6 +158,7 @@ public class MySqlSourceReader<T>
     @Override
     protected void onSplitFinished(Map<String, MySqlSplitState> finishedSplitIds) {
         boolean requestNextSplit = true;
+        // isNewlyAddedTableSplitAndBinlogSplit
         if (isNewlyAddedTableSplitAndBinlogSplit(finishedSplitIds)) {
             MySqlSplitState mySqlBinlogSplitState = finishedSplitIds.remove(BINLOG_SPLIT_ID);
             finishedSplitIds
@@ -222,6 +228,7 @@ public class MySqlSourceReader<T>
     }
 
     /**
+     * split如何分配和处理的逻辑
      * Adds a list of splits for this reader to read.
      *
      * @param splits the splits to add.
@@ -233,7 +240,9 @@ public class MySqlSourceReader<T>
         List<MySqlSplit> unfinishedSplits = new ArrayList<>();
         for (MySqlSplit split : splits) {
             LOG.info("Source reader {} adds split {}", subtaskId, split);
+            //处理快照split
             if (split.isSnapshotSplit()) {
+                // MysqlSnapshotSplit
                 MySqlSnapshotSplit snapshotSplit = split.asSnapshotSplit();
                 if (snapshotSplit.isSnapshotReadFinished()) {
                     finishedUnackedSplits.put(snapshotSplit.splitId(), snapshotSplit);
@@ -248,6 +257,7 @@ public class MySqlSourceReader<T>
                             subtaskId,
                             split.splitId());
                 }
+                // BinlogSplit
             } else {
                 MySqlBinlogSplit binlogSplit = split.asBinlogSplit();
                 // When restore from a checkpoint, the finished split infos may contain some splits
@@ -360,6 +370,7 @@ public class MySqlSourceReader<T>
     }
 
     /**
+     * 汇报完成了所有的snapshot splits.
      * Report finished snapshot splits to coordinator.
      */
     private void reportFinishedSnapshotSplitsIfNeed() {

@@ -57,6 +57,7 @@ import static java.math.BigDecimal.ROUND_CEILING;
 
 /** The {@link ChunkSplitter} implementation for MySQL.
  * core chunk splitter for MySQL.
+ * chunk split logic
  * */
 public class MySqlChunkSplitter implements ChunkSplitter {
 

@@ -147,6 +147,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
 
                         // Step 2: read binlog events between low and high watermark and backfill
                         // changes into snapshot
+                        // maybe we can merge these two steps into one
                         backfill(snapshotResult, sourceContext);
 
                     } catch (Exception e) {
@@ -159,6 +160,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
 
     private SnapshotResult<MySqlOffsetContext> snapshot(
             SnapshotSplitChangeEventSourceContextImpl sourceContext) throws Exception {
+        // invoke snapshot read task
         return splitSnapshotReadTask.execute(
                 sourceContext,
                 statefulTaskContext.getMySqlPartition(),
@@ -197,6 +199,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
         }
     }
 
+    //  backfill is required
     private boolean isBackfillRequired(MySqlBinlogSplit backfillBinlogSplit) {
         return !statefulTaskContext.getSourceConfig().isSkipSnapshotBackfill()
                 && backfillBinlogSplit
@@ -243,6 +246,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
                 event -> true);
     }
 
+    // binlog 结束事件
     private void dispatchBinlogEndEvent(MySqlBinlogSplit backFillBinlogSplit)
             throws InterruptedException {
         final SignalEventDispatcher signalEventDispatcher =
@@ -262,11 +266,18 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
                 || (!currentTaskRunning && !hasNextElement.get() && reachEnd.get());
     }
 
+    /**
+     * LOW -> 快照数据 -> HIGH -> binlog数据 -> BINLOG_END
+     * Polls the next batch of records from the snapshot split.
+     *
+     * @return an iterator over the next batch of records, or {@code null} if there are no more
+     *     records to be emitted.
+     */
     @Nullable
     @Override
     public Iterator<SourceRecords> pollSplitRecords() throws InterruptedException {
         checkReadException();
-
+        //具体的数据处理流程，snapshot 期间 全量数据 + 增量数据的修正
         if (hasNextElement.get()) {
             // data input: [low watermark event][snapshot events][high watermark event][binlog
             // events][binlog-end event]
@@ -275,43 +286,54 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
             boolean reachBinlogEnd = false;
             SourceRecord lowWatermark = null;
             SourceRecord highWatermark = null;
-
+            // snapshot events
             Map<Struct, List<SourceRecord>> snapshotRecords = new HashMap<>();
             while (!reachBinlogEnd) {
                 checkReadException();
                 List<DataChangeEvent> batch = queue.poll();
                 for (DataChangeEvent event : batch) {
                     SourceRecord record = event.getRecord();
+                    // the first snapshot record split [null,high watermark]
                     if (lowWatermark == null) {
                         lowWatermark = record;
+                        // validate the low watermark
                         assertLowWatermark(lowWatermark);
+                        LOG.info("set lowWatermark {}",lowWatermark);
                         continue;
                     }
-
+                    // the last snapshot record split [low watermark,null],start to capture binlog
                     if (highWatermark == null && RecordUtils.isHighWatermarkEvent(record)) {
                         highWatermark = record;
                         // snapshot events capture end and begin to capture binlog events
                         reachBinlogStart = true;
+                        LOG.info("reach BinlogStart {}",highWatermark);
                         continue;
                     }
 
+                    // [low watermark,snapshot data,high watermark][binlog data][binlog-end]
                     if (reachBinlogStart && RecordUtils.isEndWatermarkEvent(record)) {
                         // capture to end watermark events, stop the loop
                         reachBinlogEnd = true;
+                        LOG.info("reach BinlogEnd {}",highWatermark);
                         break;
                     }
 
+                    // handle snapshot data
                     if (!reachBinlogStart) {
+                        // handle data with primary key
                         if (record.key() != null) {
                             snapshotRecords.put(
                                     (Struct) record.key(), Collections.singletonList(record));
+                        // handle data without primary key
                         } else {
                             List<SourceRecord> records =
                                     snapshotRecords.computeIfAbsent(
                                             (Struct) record.value(), key -> new LinkedList<>());
                             records.add(record);
                         }
+                    // handle binlog data
                     } else {
+                        LOG.info("upsertBinlog {}",record);
                         RecordUtils.upsertBinlog(
                                 snapshotRecords,
                                 record,
@@ -324,7 +346,7 @@ public class SnapshotSplitReader implements DebeziumReader<SourceRecords, MySqlS
             }
             // snapshot split return its data once
             hasNextElement.set(false);
-
+            //// 规范化记录：低水位 + 快照/binlog数据 + 高水位
             final List<SourceRecord> normalizedRecords = new ArrayList<>();
             normalizedRecords.add(lowWatermark);
             normalizedRecords.addAll(

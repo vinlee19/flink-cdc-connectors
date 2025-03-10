@@ -23,6 +23,7 @@ import org.apache.flink.cdc.connectors.mysql.source.reader.MySqlSourceReader;
 import org.apache.flink.cdc.connectors.mysql.source.split.MySqlBinlogSplit;
 
 /**
+ * MysqlSourceReader -- [BinlogSplitAssignedEvent] notify MySqlBinlogSplit assigned to self -> MySqlSourceEnumerator
  * The {@link SourceEvent} that {@link MySqlSourceReader} sends to {@link MySqlSourceEnumerator} to
  * notify the {@link MySqlBinlogSplit} assigned to itself.
  */

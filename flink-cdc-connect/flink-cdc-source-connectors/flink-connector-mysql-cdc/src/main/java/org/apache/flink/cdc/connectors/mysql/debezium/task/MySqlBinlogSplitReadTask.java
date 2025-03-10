@@ -45,6 +45,7 @@ import java.util.function.Predicate;
 import static org.apache.flink.cdc.connectors.mysql.source.offset.BinlogOffsetUtils.isNonStoppingOffset;
 
 /**
+ * 0219日
  * Task to read all binlog for table and also supports read bounded (from lowWatermark to
  * highWatermark) binlog.
  */

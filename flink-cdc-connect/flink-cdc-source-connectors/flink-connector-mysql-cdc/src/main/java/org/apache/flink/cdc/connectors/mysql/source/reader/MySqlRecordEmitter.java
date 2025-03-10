@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 
 /**
+ * 数据发送者.
  * The {@link RecordEmitter} implementation for {@link MySqlSourceReader}.
  *
  * <p>The {@link RecordEmitter} buffers the snapshot records of split and call the binlog reader to
@@ -74,6 +75,9 @@ public class MySqlRecordEmitter<T> implements RecordEmitter<SourceRecords, T, My
         }
     }
 
+    /**
+     * process element and emit record.
+     */
     protected void processElement(
             SourceRecord element, SourceOutput<T> output, MySqlSplitState splitState)
             throws Exception {

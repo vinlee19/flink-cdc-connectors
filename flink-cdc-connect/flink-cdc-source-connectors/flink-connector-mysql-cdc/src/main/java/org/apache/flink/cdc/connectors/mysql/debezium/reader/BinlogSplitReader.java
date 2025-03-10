@@ -198,6 +198,7 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
     }
 
     /**
+     * binlog read phase: 1.
      * Returns the record should emit or not.
      *
      * <p>The watermark signal algorithm is the binlog split reader only sends the binlog event that
@@ -253,6 +254,10 @@ public class BinlogSplitReader implements DebeziumReader<SourceRecords, MySqlSpl
         return true;
     }
 
+
+    /**
+     * 判断是否进入纯binlog阶段.
+     */
     private boolean hasEnterPureBinlogPhase(TableId tableId, BinlogOffset position) {
         if (pureBinlogPhaseTables.contains(tableId)) {
             return true;
